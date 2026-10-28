@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @RestController
 @RequestMapping("/api/expenses")
 public class ExpenseController {
@@ -50,7 +52,13 @@ public class ExpenseController {
         return service.findAllByAmountDesc();
     }
     @GetMapping("/page")
-    public Page<Expense> findPage(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size){ return service.findPage(page,size);}
+    public Page<Expense> findPage(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size,@RequestParam(defaultValue = "date") String sort,@RequestParam Optional<Long> categoryId){
+        if(!categoryId.isEmpty()){
+            return service.findPageByCategory(categoryId.get(), page, size, sort);
+        }
+            return service.findPage(page, size , sort);
+    }
+    @GetMapping("/")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Expense create(

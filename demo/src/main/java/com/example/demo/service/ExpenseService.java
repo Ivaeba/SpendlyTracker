@@ -54,12 +54,22 @@ public class ExpenseService {
                 ));
     }
     @Transactional(readOnly = true)
-    public Page<Expense> findPage(int page, int size){
+    public Page<Expense> findPage(int page, int size,String sort){
         if(page < 0 || size < 1 || size > 100){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
         }
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "date"));
+        String sortField = "amount".equals(sort) ? "amount" : "date";
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sortField));
         return repository.findAll(pageable);
+    }
+    @Transactional(readOnly = true)
+    public Page<Expense> findPageByCategory(Long categoryId, int page, int size,String sort){
+        if(categoryId <= 0 || page < 0 || size < 1 || size > 100){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
+        }
+        String sortField = "amount".equals(sort) ? "amount" : "date";
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sortField));
+        return repository.findByCategory_Id(categoryId,pageable);
     }
     @Transactional
     public Expense create(CreateExpenseRequest request) {

@@ -1,6 +1,8 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.Expense;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,5 +45,5 @@ public interface ExpenseRepository
     List<Expense> findAllByOrderByDateDesc();
     List<Expense> findAllByOrderByAmountDesc();
     List<Expense> findByCategory_IdOrderByAmountDesc(Long categoryId);
-
+    Page<Expense> findByCategory_Id(Long categoryId, Pageable pageable);
 }
