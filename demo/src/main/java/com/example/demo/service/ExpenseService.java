@@ -54,21 +54,35 @@ public class ExpenseService {
                 ));
     }
     @Transactional(readOnly = true)
-    public Page<Expense> findPage(int page, int size,String sort){
+    public Page<Expense> findPage(int page, int size,String sort,String direction){
         if(page < 0 || size < 1 || size > 100){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
         }
-        String sortField = "amount".equals(sort) ? "amount" : "date";
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sortField));
-        return repository.findAll(pageable);
-    }
-    @Transactional(readOnly = true)
-    public Page<Expense> findPageByCategory(Long categoryId, int page, int size,String sort){
-        if(categoryId <= 0 || page < 0 || size < 1 || size > 100){
+        if (!"date".equals(sort) && !"amount".equals(sort)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
+        }
+        if(!"asc".equals(direction) && !"desc".equals(direction)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
         }
         String sortField = "amount".equals(sort) ? "amount" : "date";
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sortField));
+        Sort.Direction sortDirection = "asc".equals(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
+        return repository.findAll(pageable);
+    }
+    @Transactional(readOnly = true)
+    public Page<Expense> findPageByCategory(Long categoryId, int page, int size,String sort,String direction){
+        if(categoryId <= 0 || page < 0 || size < 1 || size > 100){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
+        }
+        else if (!"date".equals(sort) && !"amount".equals(sort)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
+        }
+        else if (!"asc".equals(direction) && !"desc".equals(direction)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
+        }
+        String sortField = "amount".equals(sort) ? "amount" : "date";
+        Sort.Direction sortDirection = "asc".equals(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
         return repository.findByCategory_Id(categoryId,pageable);
     }
     @Transactional

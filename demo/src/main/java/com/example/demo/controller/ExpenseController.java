@@ -52,11 +52,11 @@ public class ExpenseController {
         return service.findAllByAmountDesc();
     }
     @GetMapping("/page")
-    public Page<Expense> findPage(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size,@RequestParam(defaultValue = "date") String sort,@RequestParam Optional<Long> categoryId){
+    public Page<Expense> findPage(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size,@RequestParam(defaultValue = "date") String sort,@RequestParam Optional<Long> categoryId,@RequestParam(defaultValue = "desc") String direction) {
         if(!categoryId.isEmpty()){
-            return service.findPageByCategory(categoryId.get(), page, size, sort);
+            return service.findPageByCategory(categoryId.get(), page, size, sort,direction);
         }
-            return service.findPage(page, size , sort);
+            return service.findPage(page, size , sort , direction);
     }
     @GetMapping("/")
     @PostMapping
