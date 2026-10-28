@@ -40,3 +40,20 @@ WHERE c.name = 'Entertainment'
       AND e.category_id = c.id
       AND e.date = DATE '2026-10-25'
 );
+INSERT INTO expenses (title, amount, category_id, date)
+SELECT v.title, v.amount, c.id, v.expense_date
+FROM categories c
+         CROSS JOIN (
+    VALUES
+        ('Sample expense 2', 10.00::numeric, DATE '2026-10-20'),
+        ('Sample expense 3', 25.50::numeric, DATE '2026-10-21'),
+        ('Sample expense 4', 7.25::numeric, DATE '2026-10-23'),
+        ('Sample expense 5', 42.00::numeric, DATE '2026-10-26')
+) AS v(title, amount, expense_date)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM expenses e
+    WHERE e.category_id = c.id
+      AND e.title = v.title
+      AND e.date = v.expense_date
+);
