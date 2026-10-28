@@ -46,4 +46,9 @@ public interface ExpenseRepository
     List<Expense> findAllByOrderByAmountDesc();
     List<Expense> findByCategory_IdOrderByAmountDesc(Long categoryId);
     Page<Expense> findByCategory_Id(Long categoryId, Pageable pageable);
+    List<Expense> findByTitleContainingIgnoreCase(String title);
+    Page<Expense> findByTitleContainingIgnoreCase(
+            String title,
+            Pageable pageable
+    );
 }

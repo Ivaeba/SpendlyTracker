@@ -58,7 +58,11 @@ public class ExpenseController {
         }
             return service.findPage(page, size , sort , direction);
     }
-    @GetMapping("/")
+
+    @GetMapping("/search")
+    public List<Expense> searchByTitle(@RequestParam String title){
+        return service.searchByTitle(title);
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Expense create(

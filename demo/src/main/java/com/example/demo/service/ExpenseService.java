@@ -85,6 +85,13 @@ public class ExpenseService {
         PageRequest pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
         return repository.findByCategory_Id(categoryId,pageable);
     }
+    @Transactional(readOnly = true)
+    public List<Expense> searchByTitle(String title){
+        if(title == null || title.isBlank()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
+        }
+        return repository.findByTitleContainingIgnoreCase(title.trim());
+    }
     @Transactional
     public Expense create(CreateExpenseRequest request) {
         Category category = findCategory(request.categoryId());
