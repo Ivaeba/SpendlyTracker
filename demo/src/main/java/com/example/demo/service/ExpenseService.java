@@ -92,6 +92,26 @@ public class ExpenseService {
         }
         return repository.findByTitleContainingIgnoreCase(title.trim());
     }
+    @Transactional(readOnly = true)
+    public Page<Expense> searchByTitlePage(String title, int page, int size){
+        if(title == null || title.isBlank() || page < 0 || size < 1 || size > 100){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bad request!");
+        }
+        PageRequest titlePagination = PageRequest.of(page, size, Sort.by("amount","date").descending());
+        return repository.findByTitleContainingIgnoreCase(title.trim(), titlePagination);
+    }
+    @Transactional(readOnly = true)
+    public Page<Expense> searchByTitleAndCategory(Long categoryId, int page, int size,String sort,String direction,String title){
+        if(title == null || title.isBlank() || categoryId == null || categoryId <= 0 || page < 0 || size < 1 || size > 100 || sort == null || sort.isBlank() || direction == null || direction.isBlank() || (!"date".equals(sort) && !"amount".equals(sort)) || (!"asc".equals(direction) && !"desc".equals(direction))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad request!");
+        }
+        String sortField = "amount".equals(sort) ? "amount" : "date";
+        Sort.Direction sortDirection = "asc".equals(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
+        return repository.findByTitleContainingIgnoreCaseAndCategory_Id(
+                title.trim(),categoryId,pageable
+        );
+    }
     @Transactional
     public Expense create(CreateExpenseRequest request) {
         Category category = findCategory(request.categoryId());

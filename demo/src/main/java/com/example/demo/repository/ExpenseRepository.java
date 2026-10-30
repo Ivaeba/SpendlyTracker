@@ -51,4 +51,5 @@ public interface ExpenseRepository
             String title,
             Pageable pageable
     );
+    Page<Expense> findByTitleContainingIgnoreCaseAndCategory_Id(String title, Long categoryId,Pageable pageable);
 }

@@ -60,8 +60,13 @@ public class ExpenseController {
     }
 
     @GetMapping("/search")
-    public List<Expense> searchByTitle(@RequestParam String title){
-        return service.searchByTitle(title);
+    public Page<Expense> searchByTitle(@RequestParam String title,@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size,@RequestParam Optional<Long> categoryId,@RequestParam(defaultValue = "desc") String direction,@RequestParam(defaultValue = "date") String sort) {
+        if(categoryId.isEmpty()) {
+            return service.searchByTitlePage(title, page, size);
+        }
+        else{
+            return service.searchByTitleAndCategory(categoryId.get(), page, size,sort,direction,title);
+        }
     }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
