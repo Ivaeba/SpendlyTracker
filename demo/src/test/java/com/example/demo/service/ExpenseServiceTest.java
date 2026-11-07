@@ -13,9 +13,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import static org.mockito.ArgumentMatchers.eq;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,5 +81,89 @@ class ExpenseServiceTest {
         assertThat(result).isSameAs(expectedPage);
         verify(repository).findAll(PageRequest.of(0, 5, Sort.by("amount").descending()));
 
+    }
+    @Test
+    void searchByTitlePage_shouldReturnExpenses(){
+            Page<Expense> expectedPage = new PageImpl<>(List.of());
+            when(repository.findByTitleContainingIgnoreCase(eq("Sample"),any(Pageable.class))).thenReturn(expectedPage);
+            Page<Expense> result = service.searchByTitlePage(" Sample ", 0, 5);
+            assertThat(result).isSameAs(expectedPage);
+            verify(repository).findByTitleContainingIgnoreCase("Sample",PageRequest.of(0,5,Sort.by("amount","date").descending()));
+    }
+    @Test
+    void searchByTitlePage_shouldThrowExceptionWhenTitleIsBlank(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,() ->service.searchByTitlePage("   ", 0, 5));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitlePage_shouldThrowExceptionWhenPageIsNegative(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,() -> service.searchByTitlePage("Sample",-1,5));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitlePage_shouldThrowExceptionWhenSizeIsTooLarge(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,() -> service.searchByTitlePage("Sample",0,101));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitleAndCategory_shouldReturnExpenses(){
+            Page<Expense> expectedPage = new PageImpl<>(List.of());
+            when(repository.findByTitleContainingIgnoreCaseAndCategory_Id(eq("Sample"),eq(1L),any(Pageable.class))).thenReturn(expectedPage);
+            Page<Expense> result = service.searchByTitleAndCategory(1L,0,5,"amount","asc"," Sample ");
+            assertThat(result).isSameAs(expectedPage);
+            verify(repository).findByTitleContainingIgnoreCaseAndCategory_Id(eq("Sample"),eq(1L),eq(PageRequest.of(0,5,Sort.by(Sort.Direction.ASC,"amount"))));
+    }
+    @Test
+    void searchByTitleAndCategory_shouldThrowExceptionWhenCategoryIdIsInvalid(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,() -> service.searchByTitleAndCategory(0L,0,5,"amount","asc","Sample"));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+        }
+    @Test
+    void searchByTitleAndCategory_shouldThrowExceptionWhenCategoryIdIsNull(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,() -> service.searchByTitleAndCategory(null,0,5,"amount","asc","Sample"));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitleAndCategory_shouldThrowExceptionWhenTitleIsBlank(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,() -> service.searchByTitleAndCategory(1L,0,5,"amount","asc","  "));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitleAndCategory_shouldThrowExceptionWhenPageIsNegative(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,() -> service.searchByTitleAndCategory(1L,-1,5,"amount","asc","Sample"));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitleAndCategory_shouldThrowExceptionWhenSizeIsTooLarge(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,() -> service.searchByTitleAndCategory(1L,0,101,"amount","asc","Sample"));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitleAndCategory_shouldThrowExceptionWhenSortIsInvalid(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,()-> service.searchByTitleAndCategory(1L,0,5,"title","asc","Sample"));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitleAndCategory_shouldThrowExceptionWhenDirectionIsInvalid(){
+            ResponseStatusException exception = assertThrows(ResponseStatusException.class,()->service.searchByTitleAndCategory(1L,0,5,"amount","sideways","Sample"));
+            assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            verifyNoInteractions(repository);
+    }
+    @Test
+    void searchByTitleAndCategory_shouldSortByDateDescending(){
+            Page<Expense> expectedPage = new PageImpl<>(List.of());
+            when(repository.findByTitleContainingIgnoreCaseAndCategory_Id(eq("Sample"),eq(1L),any(Pageable.class))).thenReturn(expectedPage);
+            Page<Expense> result = service.searchByTitleAndCategory(1L,0,5,"date","desc"," Sample ");
+            assertThat(result).isSameAs(expectedPage);
+            verify(repository).findByTitleContainingIgnoreCaseAndCategory_Id(eq("Sample"),eq(1L),eq(PageRequest.of(0,5,Sort.by(Sort.Direction.DESC,"date"))));
     }
     }
