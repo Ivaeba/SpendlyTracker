@@ -7,33 +7,23 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record CreateTransactionRequest(
-        @NotNull(groups = {New.class,UpdateTransaction.class})
+        @NotBlank
         @Size(max = 100)
         String title,
-        @NotNull(groups = {New.class})
-        @Null(groups = {UpdateTransaction.class})
-        @DecimalMin(value = "0.01")
+
+        @NotNull
+        @DecimalMin("0.01")
         @Digits(integer = 10, fraction = 2)
         BigDecimal amount,
-        @Null(groups = {New.class})
-        @NotNull(groups = {UpdateTransaction.class})
+
+        @NotNull
         @Positive
         Long categoryId,
-        @NotNull(groups = {New.class})
-        @Null(groups = {UpdateTransaction.class})
+
+        @NotNull
         LocalDate date,
-        @NotNull(groups = {New.class})
-        @Null(groups = {UpdateTransaction.class})
-        TransactionType type){
-        public interface New{
 
-        }
-        public interface Exists{
-
-        }
-        public interface UpdateTransaction extends Exists{
-
-        }
-
-}
+        @NotNull
+        TransactionType type
+) {}
 
