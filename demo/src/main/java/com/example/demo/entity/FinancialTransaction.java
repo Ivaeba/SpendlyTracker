@@ -49,4 +49,12 @@ public class FinancialTransaction {
     public Category getCategory() {
         return category;
     }
+    public void update(String title, BigDecimal amount, Category category,
+                       LocalDate date, TransactionType type) {
+        this.title = title;
+        this.amount = amount;
+        this.category = category;
+        this.date = date;
+        this.type = type;
+    }
 }
